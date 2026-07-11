@@ -1,0 +1,38 @@
+.app-shell {
+  min-height: 100svh;
+  max-width: 430px;
+  min-width: 320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background: var(--tg-bg);
+}
+
+.app-content {
+  flex: 1 1 auto;
+  overflow-x: hidden;
+}
+
+/* Fade + slight slide on every tab switch, keyed by tab id in App.tsx so it
+   retriggers on each change. */
+.tab-transition {
+  animation: tab-fade-in 240ms ease both;
+}
+
+@keyframes tab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-transition {
+    animation: none;
+  }
+}

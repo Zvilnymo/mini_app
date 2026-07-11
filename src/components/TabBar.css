@@ -1,0 +1,49 @@
+.tab-bar {
+  border-top: 1px solid var(--tg-border);
+  background: color-mix(in srgb, var(--tg-card) 95%, transparent);
+  backdrop-filter: blur(8px);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tab-bar-list {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tab-bar-item {
+  flex: 1;
+}
+
+.tab-bar-button {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  color: var(--tg-muted);
+  font: inherit;
+  cursor: pointer;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.tab-bar-button:active {
+  transform: scale(0.96);
+}
+
+.tab-bar-button--active {
+  color: var(--tg-accent);
+}
+
+.tab-bar-button span {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}

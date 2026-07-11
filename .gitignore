@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.env
+
+# documents_bot is its own separate git repo (real GitHub origin) nested
+# here for convenience while editing mini_app_api — never track it from
+# this repo.
+/documents_bot/
+
+# Old iOS-app Figma export, reference only, not used by the build.
+Zvilnymo.pdf
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
