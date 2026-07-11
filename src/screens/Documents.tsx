@@ -42,7 +42,12 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const tint = item.latest_status ? STATUS_TINT[item.latest_status] : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' };
-  const isAccepted = item.latest_status === 'accepted';
+  // A file made it in and wasn't rejected — show it as "done" regardless of
+  // whether the AI gave a precise accepted/pending/uncertain verdict, so a
+  // successful upload always reads as clearly finished at a glance.
+  const isDone = item.uploaded_count > 0 && item.latest_status !== 'rejected';
+  const isRejected = item.latest_status === 'rejected';
+  const cardModifier = isDone ? ' doc-card--done' : isRejected ? ' doc-card--rejected' : '';
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,13 +66,13 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
   };
 
   return (
-    <div className="doc-card">
+    <div className={`doc-card${cardModifier}`}>
       <div className="doc-card-top">
         <span className="doc-icon" style={tint}>
           <span style={{ fontSize: 20 }}>{item.emoji}</span>
-          {isAccepted && (
+          {isDone && (
             <span className="doc-icon-check">
-              <Check size={11} strokeWidth={3} aria-hidden="true" />
+              <Check size={13} strokeWidth={3.5} aria-hidden="true" />
             </span>
           )}
         </span>

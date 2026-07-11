@@ -17,25 +17,24 @@
   -webkit-overflow-scrolling: touch;
 }
 
-/* Fade + slight slide on every tab switch, keyed by tab id in App.tsx so it
-   retriggers on each change. */
-.tab-transition {
-  animation: tab-fade-in 240ms ease both;
+/* Panels stay mounted permanently (see App.tsx) — [hidden] removes a panel
+   from the render tree, so this animation naturally restarts each time a
+   panel goes from hidden back to visible, without any remount. */
+.tab-panel:not([hidden]) {
+  animation: tab-fade-in 180ms ease both;
 }
 
 @keyframes tab-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tab-transition {
+  .tab-panel:not([hidden]) {
     animation: none;
   }
 }
