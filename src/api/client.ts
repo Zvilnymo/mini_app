@@ -4,7 +4,13 @@ import type { DocumentChecklistItem, MeResponse, UploadResult, Client } from './
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  if (!BASE_URL) {
+    // Fails loudly instead of silently falling back to a relative (wrong)
+    // origin — this build was published without VITE_API_URL set.
+    throw new Error(`VITE_API_URL is not set in this build (requested ${path})`);
+  }
+  const url = `${BASE_URL}${path}`;
+  const res = await fetch(url, {
     ...init,
     headers: {
       ...(init?.headers ?? {}),
@@ -13,7 +19,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    throw new Error(`${path} failed: ${res.status} ${body}`);
+    // Report the actual resolved URL, not just the intended path — if
+    // VITE_API_URL didn't make it into this build, BASE_URL is empty and
+    // the real request silently goes to a relative (wrong) origin instead.
+    throw new Error(`${res.status} ${url} -> ${body}`);
   }
   return res.json() as Promise<T>;
 }
