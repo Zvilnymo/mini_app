@@ -35,9 +35,3 @@
   color: var(--tg-text);
   max-width: 280px;
 }
-
-.splash-subtext {
-  margin-top: -12px;
-  font-size: 13px;
-  color: var(--tg-muted);
-}

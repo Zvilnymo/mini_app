@@ -1,5 +1,5 @@
 import { getInitDataRaw } from '../telegram/init';
-import type { DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
+import type { DeclarationResponse, DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
 
 // Strip a trailing slash regardless of how VITE_API_URL was entered
 // (with or without one) — path always starts with '/', so a trailing
@@ -70,6 +70,15 @@ export const api = {
     form.append('income_over_30k', String(answers.incomeOver30k));
     return request<{ ok: true }>('/api/screening', { method: 'POST', body: form });
   },
+
+  getDeclaration: () => request<DeclarationResponse>('/api/declaration'),
+
+  submitDeclaration: (answers: Record<string, string>) =>
+    request<{ ok: true }>('/api/declaration', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(answers),
+    }),
 };
 
 export interface ScreeningAnswers {

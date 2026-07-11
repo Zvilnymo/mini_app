@@ -68,3 +68,17 @@ export interface UploadResult {
     drive_file_url: string | null;
   };
 }
+
+export interface DeclarationQuestion {
+  key: string;
+  emoji: string;
+  question: string;
+  hint?: string;
+  required: boolean;
+}
+
+export interface DeclarationResponse {
+  questions: DeclarationQuestion[];
+  answers: Record<string, string>;
+  completed: boolean;
+}

@@ -654,3 +654,90 @@
   font-size: 14px;
   line-height: 1.5;
 }
+
+/* ---- Declaration questionnaire (full-screen drill-in from Documents) ---- */
+.declaration-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.declaration-back {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: var(--tg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  color: var(--tg-text);
+  cursor: pointer;
+}
+
+.declaration-back:active {
+  opacity: 0.6;
+}
+
+.declaration-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--tg-text);
+}
+
+.declaration-subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--tg-muted);
+}
+
+.declaration-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.declaration-field {
+  border-radius: 18px;
+  background: var(--tg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+}
+
+.declaration-question {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--tg-text);
+}
+
+.declaration-question-index {
+  color: var(--tg-muted);
+}
+
+.declaration-required {
+  margin-left: 4px;
+  color: var(--tg-red);
+}
+
+.declaration-hint {
+  margin-top: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--tg-muted);
+}
+
+.declaration-textarea {
+  margin-top: 10px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 14px;
+  resize: vertical;
+  font: inherit;
+}
+
+.declaration-textarea--error {
+  border-color: var(--tg-red);
+}

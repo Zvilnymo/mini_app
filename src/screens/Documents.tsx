@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, CircleCheckBig, ClipboardList, Paperclip } from 'lucide-react';
 import { api } from '../api/client';
-import { useDocuments, useMe } from '../api/hooks';
+import { useDocuments } from '../api/hooks';
 import { useToast } from '../components/Toast';
-import { Screening } from './Screening';
+import { Declaration } from './Declaration';
 import type { DocumentChecklistItem } from '../api/types';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -43,27 +43,30 @@ function StatusPill({ status }: { status: DocumentChecklistItem['latest_status']
   );
 }
 
-function AnketaCard() {
-  const { data } = useMe();
-  const [open, setOpen] = useState(false);
-  const completed = data && data.registered ? data.screening_completed : false;
+function DeclarationCard({ onOpen }: { onOpen: () => void }) {
+  const [completed, setCompleted] = useState<boolean | null>(null);
 
-  if (open) {
-    return (
-      <div className="card">
-        <Screening title="Анкета" onDone={() => setOpen(false)} />
-      </div>
-    );
-  }
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getDeclaration()
+      .then((res) => {
+        if (!cancelled) setCompleted(res.completed);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
-    <button type="button" className="complaint-trigger" onClick={() => setOpen(true)}>
+    <button type="button" className="complaint-trigger" onClick={onOpen}>
       <span className="row-icon" style={{ background: 'var(--tg-blue-bg)', color: 'var(--tg-accent)' }}>
         <ClipboardList size={18} aria-hidden="true" />
       </span>
       <div>
-        <p className="row-value">Анкета</p>
-        <p className="row-label">{completed ? 'Заповнено — натисніть, щоб змінити' : 'Ще не заповнено'}</p>
+        <p className="row-value">Анкета декларацій</p>
+        <p className="row-label">{completed ? 'Заповнено — натисніть, щоб змінити' : 'Заповніть анкету для декларації'}</p>
       </div>
     </button>
   );
@@ -71,11 +74,15 @@ function AnketaCard() {
 
 function TextDocCard({ item, onSaved }: { item: DocumentChecklistItem; onSaved: () => void }) {
   const isEmail = item.type === 'emailpass';
+  const isDone = item.uploaded_count > 0;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isDone = item.uploaded_count > 0;
+  // Once already saved, hide the inputs and show only "Оновити" — re-saving
+  // must overwrite the same Bitrix Disk file/row, not create a duplicate,
+  // so the fields only reappear when the client explicitly asks to change them.
+  const [editing, setEditing] = useState(!isDone);
   const cardModifier = isDone ? ' doc-card--done' : '';
 
   const save = async () => {
@@ -87,6 +94,7 @@ function TextDocCard({ item, onSaved }: { item: DocumentChecklistItem; onSaved: 
       await api.uploadTextDocument(item.type, text);
       setPassword('');
       setEmail('');
+      setEditing(false);
       onSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не вдалося зберегти');
@@ -127,25 +135,33 @@ function TextDocCard({ item, onSaved }: { item: DocumentChecklistItem; onSaved: 
             )}
           </div>
           <div className="register-form" style={{ paddingTop: 8 }}>
-            {isEmail && (
-              <input
-                className="text-input"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                inputMode="email"
-              />
+            {editing ? (
+              <>
+                {isEmail && (
+                  <input
+                    className="text-input"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    inputMode="email"
+                  />
+                )}
+                <input
+                  className="text-input"
+                  placeholder="Пароль"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button type="button" className="btn-accent" disabled={saving} onClick={save}>
+                  {saving ? 'Зберігаємо…' : 'Зберегти'}
+                </button>
+                {error && <p className="form-error">{error}</p>}
+              </>
+            ) : (
+              <button type="button" className="btn-outline" onClick={() => setEditing(true)}>
+                Оновити
+              </button>
             )}
-            <input
-              className="text-input"
-              placeholder="Пароль"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button type="button" className="btn-accent" disabled={saving} onClick={save}>
-              {saving ? 'Зберігаємо…' : isDone ? 'Оновити' : 'Зберегти'}
-            </button>
-            {error && <p className="form-error">{error}</p>}
           </div>
         </div>
       </div>
@@ -221,7 +237,12 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
 }
 
 export function Documents() {
+  const [declarationOpen, setDeclarationOpen] = useState(false);
   const { data, loading, error, refetch } = useDocuments();
+
+  if (declarationOpen) {
+    return <Declaration onBack={() => setDeclarationOpen(false)} />;
+  }
 
   if (loading) {
     return (
@@ -277,7 +298,7 @@ export function Documents() {
         </div>
       </div>
 
-      <AnketaCard />
+      <DeclarationCard onOpen={() => setDeclarationOpen(true)} />
 
       <section>
         <h2 className="section-title">Обов'язкові документи</h2>
