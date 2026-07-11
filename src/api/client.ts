@@ -1,7 +1,11 @@
 import { getInitDataRaw } from '../telegram/init';
 import type { DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? '';
+// Strip a trailing slash regardless of how VITE_API_URL was entered
+// (with or without one) — path always starts with '/', so a trailing
+// slash here would produce a double-slash URL that FastAPI treats as a
+// different, unmatched route (404).
+const BASE_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   if (!BASE_URL) {
