@@ -82,19 +82,7 @@ export function Home({ onNavigate }: { onNavigate: (tab: TabKey) => void }) {
     );
   }
 
-  if (!data) return null;
-
-  if (!data.registered) {
-    return (
-      <div className="placeholder-block">
-        <p className="placeholder-title">Ласкаво просимо до Zvilnymo</p>
-        <p className="placeholder-description">Перейдіть у вкладку «Кабінет», щоб зареєструватися за номером телефону.</p>
-        <button type="button" className="btn-accent" style={{ marginTop: 16 }} onClick={() => onNavigate('cabinet')}>
-          Перейти в кабінет
-        </button>
-      </div>
-    );
-  }
+  if (!data || !data.registered) return null;
 
   const { client, case: caseStatus, debt_overview, days_active, docs_ready, docs_total } = data;
   const firstName = client.full_name.split(' ')[1] ?? client.full_name.split(' ')[0];

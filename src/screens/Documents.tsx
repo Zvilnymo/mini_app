@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Check, CircleCheckBig, Paperclip } from 'lucide-react';
+import { Check, CircleCheckBig, ClipboardList, Paperclip } from 'lucide-react';
 import { api } from '../api/client';
-import { useDocuments } from '../api/hooks';
+import { useDocuments, useMe } from '../api/hooks';
+import { useToast } from '../components/Toast';
+import { Screening } from './Screening';
 import type { DocumentChecklistItem } from '../api/types';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -17,6 +19,9 @@ const STATUS_TINT: Record<string, { background: string; color: string }> = {
   uncertain: { background: 'var(--tg-orange-bg)', color: 'var(--tg-orange)' },
   pending: { background: 'var(--tg-blue-bg)', color: 'var(--tg-accent)' },
 };
+
+const REJECTION_MESSAGE =
+  'Виникла помилка — можливо, ви завантажили некоректний документ. Спробуйте інший файл або зверніться до менеджера.';
 
 function StatusPill({ status }: { status: DocumentChecklistItem['latest_status'] }) {
   if (!status) return null;
@@ -38,7 +43,118 @@ function StatusPill({ status }: { status: DocumentChecklistItem['latest_status']
   );
 }
 
+function AnketaCard() {
+  const { data } = useMe();
+  const [open, setOpen] = useState(false);
+  const completed = data && data.registered ? data.screening_completed : false;
+
+  if (open) {
+    return (
+      <div className="card">
+        <Screening title="Анкета" onDone={() => setOpen(false)} />
+      </div>
+    );
+  }
+
+  return (
+    <button type="button" className="complaint-trigger" onClick={() => setOpen(true)}>
+      <span className="row-icon" style={{ background: 'var(--tg-blue-bg)', color: 'var(--tg-accent)' }}>
+        <ClipboardList size={18} aria-hidden="true" />
+      </span>
+      <div>
+        <p className="row-value">Анкета</p>
+        <p className="row-label">{completed ? 'Заповнено — натисніть, щоб змінити' : 'Ще не заповнено'}</p>
+      </div>
+    </button>
+  );
+}
+
+function TextDocCard({ item, onSaved }: { item: DocumentChecklistItem; onSaved: () => void }) {
+  const isEmail = item.type === 'emailpass';
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const isDone = item.uploaded_count > 0;
+  const cardModifier = isDone ? ' doc-card--done' : '';
+
+  const save = async () => {
+    const text = isEmail ? `Email: ${email.trim()}\nПароль: ${password.trim()}` : password.trim();
+    if (isEmail ? !email.trim() || !password.trim() : !password.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await api.uploadTextDocument(item.type, text);
+      setPassword('');
+      setEmail('');
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не вдалося зберегти');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={`doc-card${cardModifier}`}>
+      <div className="doc-card-top">
+        <span className="doc-icon" style={isDone ? STATUS_TINT.accepted : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' }}>
+          <span style={{ fontSize: 20 }}>{item.emoji}</span>
+          {isDone && (
+            <span className="doc-icon-check">
+              <Check size={13} strokeWidth={3.5} aria-hidden="true" />
+            </span>
+          )}
+        </span>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="doc-title-row">
+            <p className="doc-title">{item.name}</p>
+            {isDone && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  flexShrink: 0,
+                  alignItems: 'center',
+                  borderRadius: 999,
+                  padding: '4px 10px',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  ...STATUS_TINT.pending,
+                }}
+              >
+                Збережено
+              </span>
+            )}
+          </div>
+          <div className="register-form" style={{ paddingTop: 8 }}>
+            {isEmail && (
+              <input
+                className="text-input"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                inputMode="email"
+              />
+            )}
+            <input
+              className="text-input"
+              placeholder="Пароль"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button type="button" className="btn-accent" disabled={saving} onClick={save}>
+              {saving ? 'Зберігаємо…' : isDone ? 'Оновити' : 'Зберегти'}
+            </button>
+            {error && <p className="form-error">{error}</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded: () => void }) {
+  const { showError } = useToast();
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const tint = item.latest_status ? STATUS_TINT[item.latest_status] : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' };
@@ -56,7 +172,10 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
     setUploading(true);
     setUploadError(null);
     try {
-      await api.uploadDocument(item.type, file);
+      const result = await api.uploadDocument(item.type, file);
+      if (result.validation_status === 'rejected') {
+        showError(REJECTION_MESSAGE);
+      }
       onUploaded();
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Помилка завантаження');
@@ -131,6 +250,13 @@ export function Documents() {
   const processed = data.filter((d) => d.latest_status === 'accepted' || d.latest_status === 'pending').length;
   const percent = data.length ? Math.round((processed / data.length) * 100) : 0;
 
+  const renderCard = (item: DocumentChecklistItem) =>
+    item.text_input ? (
+      <TextDocCard key={item.type} item={item} onSaved={refetch} />
+    ) : (
+      <DocCard key={item.type} item={item} onUploaded={refetch} />
+    );
+
   return (
     <div className="screen">
       <div className="success-bar">
@@ -151,22 +277,16 @@ export function Documents() {
         </div>
       </div>
 
+      <AnketaCard />
+
       <section>
         <h2 className="section-title">Обов'язкові документи</h2>
-        <div className="doc-group">
-          {required.map((item) => (
-            <DocCard key={item.type} item={item} onUploaded={refetch} />
-          ))}
-        </div>
+        <div className="doc-group">{required.map(renderCard)}</div>
       </section>
 
       <section>
         <h2 className="section-title">Додаткові документи</h2>
-        <div className="doc-group">
-          {optional.map((item) => (
-            <DocCard key={item.type} item={item} onUploaded={refetch} />
-          ))}
-        </div>
+        <div className="doc-group">{optional.map(renderCard)}</div>
       </section>
     </div>
   );

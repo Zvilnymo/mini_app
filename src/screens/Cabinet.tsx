@@ -67,10 +67,10 @@ function ComplaintBox() {
 }
 
 export function Cabinet() {
+  // AppGate already guarantees registered + screening_completed before this
+  // ever renders — this hook call reuses the same shared cache (see
+  // api/hooks.ts), so no extra fetch happens here.
   const { data, loading, error, refetch } = useMe();
-  const [phone, setPhone] = useState('');
-  const [registering, setRegistering] = useState(false);
-  const [registerError, setRegisterError] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -92,45 +92,7 @@ export function Cabinet() {
     );
   }
 
-  if (!data) return null;
-
-  if (!data.registered) {
-    const submit = async () => {
-      if (!phone.trim()) return;
-      setRegistering(true);
-      setRegisterError(null);
-      try {
-        await api.register(phone.trim());
-        refetch();
-      } catch (e) {
-        setRegisterError(e instanceof Error ? e.message : 'Помилка реєстрації');
-      } finally {
-        setRegistering(false);
-      }
-    };
-
-    return (
-      <div className="placeholder-block">
-        <p className="placeholder-title">Ласкаво просимо</p>
-        <p className="placeholder-description">
-          Щоб побачити особистий кабінет, вкажіть номер телефону, яким ви реєструвались у Zvilnymo.
-        </p>
-        <div className="register-form" style={{ width: '100%' }}>
-          <input
-            className="text-input"
-            placeholder="+380XXXXXXXXX"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            inputMode="tel"
-          />
-          <button type="button" className="btn-accent btn-accent--block" disabled={registering} onClick={submit}>
-            {registering ? 'Зачекайте…' : 'Продовжити'}
-          </button>
-          {registerError && <p className="form-error">{registerError}</p>}
-        </div>
-      </div>
-    );
-  }
+  if (!data || !data.registered) return null;
 
   const { client, case: caseStatus, payments } = data;
   const progress = caseStatus ? Math.round(((caseStatus.step - 1) / (caseStatus.steps.length - 1)) * 100) : 0;

@@ -38,6 +38,7 @@ export type MeResponse =
   | { registered: false }
   | {
       registered: true;
+      screening_completed: boolean;
       client: Client;
       case: CaseStatus | null;
       payments: Payments | null;
@@ -53,6 +54,7 @@ export interface DocumentChecklistItem {
   emoji: string;
   required: boolean;
   uploadable: boolean;
+  text_input: boolean;
   uploaded_count: number;
   latest_status: 'accepted' | 'rejected' | 'uncertain' | 'pending' | null;
 }

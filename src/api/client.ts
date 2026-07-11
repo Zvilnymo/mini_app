@@ -49,9 +49,32 @@ export const api = {
     return request<UploadResult>('/api/documents/upload', { method: 'POST', body: form });
   },
 
+  uploadTextDocument: (documentType: string, text: string) => {
+    const form = new FormData();
+    form.append('document_type', documentType);
+    form.append('text', text);
+    return request<UploadResult>('/api/documents/upload-text', { method: 'POST', body: form });
+  },
+
   submitComplaint: (text: string) => {
     const form = new FormData();
     form.append('text', text);
     return request<{ ok: true; task_id: number }>('/api/complaints', { method: 'POST', body: form });
   },
+
+  submitScreening: (answers: ScreeningAnswers) => {
+    const form = new FormData();
+    form.append('has_gambling_crypto', String(answers.hasGamblingCrypto));
+    form.append('is_fraud_victim', String(answers.isFraudVictim));
+    form.append('has_sold_property', String(answers.hasSoldProperty));
+    form.append('income_over_30k', String(answers.incomeOver30k));
+    return request<{ ok: true }>('/api/screening', { method: 'POST', body: form });
+  },
 };
+
+export interface ScreeningAnswers {
+  hasGamblingCrypto: boolean;
+  isFraudVictim: boolean;
+  hasSoldProperty: boolean;
+  incomeOver30k: boolean;
+}

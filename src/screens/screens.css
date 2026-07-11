@@ -572,6 +572,32 @@
   color: var(--tg-green);
 }
 
+/* ---- Screening anketa ---- */
+.screening-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.screening-toggle-btn {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1.5px solid var(--tg-border);
+  background: var(--tg-bg);
+  color: var(--tg-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+}
+
+.screening-toggle-btn--active {
+  border-color: var(--tg-accent);
+  background: var(--tg-accent);
+  color: #ffffff;
+}
+
 /* ---- Register form (phone entry) ---- */
 .register-form {
   display: flex;
