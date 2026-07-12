@@ -19,6 +19,7 @@ export interface Invoice {
   stage_name: string | null;
   payment_date: string | null;
   invoice_date: string | null;
+  receipt_pending: boolean;
 }
 
 export interface Payments {

@@ -489,6 +489,11 @@
   background: color-mix(in srgb, var(--tg-red-bg) 45%, var(--tg-card));
 }
 
+.doc-card--pending {
+  border-color: var(--tg-orange);
+  background: color-mix(in srgb, var(--tg-orange-bg) 45%, var(--tg-card));
+}
+
 .doc-card-top {
   display: flex;
   align-items: flex-start;

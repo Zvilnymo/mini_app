@@ -9,13 +9,13 @@ function formatUah(amount: number): string {
   return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(amount) + ' грн';
 }
 
-function ReceiptUpload({ invoiceId }: { invoiceId: number }) {
+function ReceiptUpload({ invoiceId, pending }: { invoiceId: number; pending: boolean }) {
   const [uploading, setUploading] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState(pending);
   const [error, setError] = useState<string | null>(null);
 
   if (sent) {
-    return <p className="receipt-sent">Квитанцію надіслано ✅</p>;
+    return <p className="receipt-sent" style={{ color: 'var(--tg-orange)' }}>Квитанцію надіслано, очікує на перевірку</p>;
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -300,29 +300,29 @@ export function Cabinet() {
               </div>
             </div>
             {payments.invoices.length > 0 && (
-              <div className="card-list">
-                {payments.invoices.map((invoice, i) => {
+              <div className="doc-group">
+                {payments.invoices.map((invoice) => {
                   const paid = invoice.stage_id === 'DT31_1:P' || invoice.stage_id === 'DT31_1:UC_WW75SB';
+                  const pending = invoice.receipt_pending && !paid;
+                  const cardModifier = paid ? ' doc-card--done' : pending ? ' doc-card--pending' : '';
+                  const statusLabel = paid ? 'Зараховано' : pending ? 'На перевірці' : (invoice.stage_name ?? invoice.stage_id);
                   return (
-                    <div key={invoice.id}>
-                      {i > 0 && <div className="card-list-divider" />}
-                      <div className="card-list-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <div>
-                            <p className="row-value">{invoice.title ?? 'Рахунок'}</p>
-                            <p className="row-label">
-                              {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('uk-UA') : ''}
-                            </p>
-                          </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <p className="row-value">{invoice.amount ? formatUah(Number(invoice.amount)) : '—'}</p>
-                            <p className="row-label" style={{ color: paid ? 'var(--tg-green)' : 'var(--tg-orange)' }}>
-                              {invoice.stage_name ?? invoice.stage_id}
-                            </p>
-                          </div>
+                    <div key={invoice.id} className={`doc-card${cardModifier}`}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                          <p className="row-value">{invoice.title ?? 'Рахунок'}</p>
+                          <p className="row-label">
+                            {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('uk-UA') : ''}
+                          </p>
                         </div>
-                        {!paid && <ReceiptUpload invoiceId={invoice.id} />}
+                        <div style={{ textAlign: 'right' }}>
+                          <p className="row-value">{invoice.amount ? formatUah(Number(invoice.amount)) : '—'}</p>
+                          <p className="row-label" style={{ color: paid ? 'var(--tg-green)' : 'var(--tg-orange)' }}>
+                            {statusLabel}
+                          </p>
+                        </div>
                       </div>
+                      {!paid && <ReceiptUpload invoiceId={invoice.id} pending={invoice.receipt_pending} />}
                     </div>
                   );
                 })}

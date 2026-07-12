@@ -46,14 +46,27 @@ function StatusPill({ status }: { status: DocumentChecklistItem['latest_status']
 }
 
 function DeclarationCard({ completed, onOpen }: { completed: boolean | null; onOpen: () => void }) {
+  const cardModifier = completed ? ' doc-card--done' : '';
   return (
-    <button type="button" className="complaint-trigger" onClick={onOpen}>
-      <span className="row-icon" style={{ background: 'var(--tg-blue-bg)', color: 'var(--tg-accent)' }}>
-        <ClipboardList size={18} aria-hidden="true" />
-      </span>
-      <div>
-        <p className="row-value">Анкета декларацій</p>
-        <p className="row-label">{completed ? 'Заповнено — натисніть, щоб змінити' : 'Заповніть анкету для декларації'}</p>
+    <button
+      type="button"
+      className={`doc-card${cardModifier}`}
+      style={{ width: '100%', textAlign: 'left', cursor: 'pointer', font: 'inherit' }}
+      onClick={onOpen}
+    >
+      <div className="doc-card-top">
+        <span className="doc-icon" style={completed ? STATUS_TINT.accepted : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' }}>
+          <ClipboardList size={20} aria-hidden="true" />
+          {completed && (
+            <span className="doc-icon-check">
+              <Check size={13} strokeWidth={3.5} aria-hidden="true" />
+            </span>
+          )}
+        </span>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <p className="doc-title">Анкета декларацій</p>
+          <p className="row-label">{completed ? 'Заповнено — натисніть, щоб змінити' : 'Заповніть анкету для декларації'}</p>
+        </div>
       </div>
     </button>
   );
