@@ -82,6 +82,10 @@ export function CelebrationOverlay({ onClose }: { onClose: () => void }) {
             <img src={director} alt={DIRECTOR.name} className="celebration-director-photo" />
           </div>
           <div className="celebration-director-body">
+            <div className="celebration-director-name-row">
+              <p className="celebration-director-name">{DIRECTOR.name}</p>
+              <p className="celebration-director-role">{DIRECTOR.role}</p>
+            </div>
             <div className="celebration-director-text">
               {DIRECTOR.paragraphs.map((p) => (
                 <p key={p}>{p}</p>

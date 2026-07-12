@@ -137,36 +137,49 @@
 }
 
 .celebration-director-photo {
-  /* director.png already has the name/role caption baked into the bottom
-     of the image itself — sized to stay legible instead of the name tag
-     shrinking down to unreadable. */
-  width: min(320px, 78%);
+  width: 220px;
   height: auto;
   object-fit: contain;
 }
 
 .celebration-director-body {
-  padding: 4px 20px 20px;
+  padding: 16px 20px 20px;
+}
+
+.celebration-director-name-row {
+  text-align: center;
+}
+
+.celebration-director-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tg-text);
+}
+
+.celebration-director-role {
+  font-size: 13px;
+  color: var(--tg-accent);
 }
 
 .celebration-director-text {
+  margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .celebration-director-text p {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.625;
   color: var(--tg-text);
 }
 
 .celebration-director-signature {
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--tg-border);
   text-align: right;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   font-style: italic;
   color: var(--tg-muted);
