@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AlertTriangle, Check, Phone, User } from 'lucide-react';
 import { api } from '../api/client';
 import { useMe } from '../api/hooks';
+import type { ComplaintDepartment } from '../api/types';
 
 function formatUah(amount: number): string {
   return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(amount) + ' грн';
@@ -9,10 +10,24 @@ function formatUah(amount: number): string {
 
 function ComplaintBox() {
   const [open, setOpen] = useState(false);
+  const [departments, setDepartments] = useState<ComplaintDepartment[]>([]);
+  const [department, setDepartment] = useState('');
+  const [employeeName, setEmployeeName] = useState('');
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (!open || departments.length > 0) return;
+    api
+      .getComplaintDepartments()
+      .then((res) => {
+        setDepartments(res.departments);
+        setDepartment(res.departments[0]?.key ?? '');
+      })
+      .catch(() => {});
+  }, [open, departments.length]);
 
   if (sent) {
     return (
@@ -37,11 +52,11 @@ function ComplaintBox() {
   }
 
   const submit = async () => {
-    if (!text.trim()) return;
+    if (!department || !employeeName.trim() || !text.trim()) return;
     setSubmitting(true);
     setError(null);
     try {
-      await api.submitComplaint(text.trim());
+      await api.submitComplaint(department, employeeName.trim(), text.trim());
       setSent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Не вдалося надіслати скаргу');
@@ -52,6 +67,19 @@ function ComplaintBox() {
 
   return (
     <div className="complaint-form">
+      <select className="text-input" value={department} onChange={(e) => setDepartment(e.target.value)}>
+        {departments.map((d) => (
+          <option key={d.key} value={d.key}>
+            {d.name}
+          </option>
+        ))}
+      </select>
+      <input
+        className="text-input"
+        placeholder="ПІБ співробітника, на якого скарга"
+        value={employeeName}
+        onChange={(e) => setEmployeeName(e.target.value)}
+      />
       <textarea
         className="complaint-textarea"
         placeholder="Опишіть проблему детальніше..."

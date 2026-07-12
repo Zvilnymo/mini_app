@@ -1,5 +1,5 @@
 import { getInitDataRaw } from '../telegram/init';
-import type { DeclarationResponse, DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
+import type { ComplaintDepartment, DeclarationResponse, DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
 
 // Strip a trailing slash regardless of how VITE_API_URL was entered
 // (with or without one) — path always starts with '/', so a trailing
@@ -56,8 +56,12 @@ export const api = {
     return request<UploadResult>('/api/documents/upload-text', { method: 'POST', body: form });
   },
 
-  submitComplaint: (text: string) => {
+  getComplaintDepartments: () => request<{ departments: ComplaintDepartment[] }>('/api/complaints/departments'),
+
+  submitComplaint: (department: string, employeeName: string, text: string) => {
     const form = new FormData();
+    form.append('department', department);
+    form.append('employee_name', employeeName);
     form.append('text', text);
     return request<{ ok: true; task_id: number }>('/api/complaints', { method: 'POST', body: form });
   },

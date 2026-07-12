@@ -79,6 +79,11 @@ export interface DeclarationQuestion {
   required: boolean;
 }
 
+export interface ComplaintDepartment {
+  key: string;
+  name: string;
+}
+
 export interface DeclarationResponse {
   questions: DeclarationQuestion[];
   answers: Record<string, string>;
