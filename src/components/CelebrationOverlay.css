@@ -10,7 +10,7 @@
 .celebration-close {
   position: absolute;
   right: 14px;
-  top: calc(14px + var(--tgui--safe_area_inset_bottom, 0px) * 0);
+  top: 14px;
   z-index: 10;
   display: flex;
   align-items: center;
@@ -137,30 +137,19 @@
 }
 
 .celebration-director-photo {
-  width: 200px;
+  /* director.png already has the name/role caption baked into the bottom
+     of the image itself — sized to stay legible instead of the name tag
+     shrinking down to unreadable. */
+  width: min(320px, 78%);
   height: auto;
   object-fit: contain;
 }
 
 .celebration-director-body {
-  padding: 16px 20px 20px;
-}
-
-.celebration-director-name {
-  text-align: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--tg-text);
-}
-
-.celebration-director-role {
-  text-align: center;
-  font-size: 13px;
-  color: var(--tg-accent);
+  padding: 4px 20px 20px;
 }
 
 .celebration-director-text {
-  margin-top: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, CircleCheckBig, ClipboardList, Paperclip } from 'lucide-react';
 import { api } from '../api/client';
 import { useDocuments } from '../api/hooks';
-import { compressImageIfNeeded } from '../lib/compressImage';
+import { compressImageIfNeeded, isTooLargeToUpload } from '../lib/compressImage';
 import { CelebrationOverlay } from '../components/CelebrationOverlay';
 import { useToast } from '../components/Toast';
 import { Declaration } from './Declaration';
@@ -45,22 +45,7 @@ function StatusPill({ status }: { status: DocumentChecklistItem['latest_status']
   );
 }
 
-function DeclarationCard({ onOpen }: { onOpen: () => void }) {
-  const [completed, setCompleted] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .getDeclaration()
-      .then((res) => {
-        if (!cancelled) setCompleted(res.completed);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+function DeclarationCard({ completed, onOpen }: { completed: boolean | null; onOpen: () => void }) {
   return (
     <button type="button" className="complaint-trigger" onClick={onOpen}>
       <span className="row-icon" style={{ background: 'var(--tg-blue-bg)', color: 'var(--tg-accent)' }}>
@@ -196,6 +181,10 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
       setUploadProgress(files.length > 1 ? { done: i, total: files.length } : null);
       try {
         const compressed = await compressImageIfNeeded(files[i]);
+        if (isTooLargeToUpload(compressed)) {
+          failure = `Файл "${files[i].name}" завеликий навіть після стиснення. Спробуйте зменшити його або зробити менш детальний скріншот/фото.`;
+          continue;
+        }
         const result = await api.uploadDocument(item.type, compressed);
         if (result.validation_status === 'rejected') anyRejected = true;
       } catch (err) {
@@ -259,9 +248,27 @@ const CELEBRATION_SHOWN_KEY = 'zv_celebration_shown';
 export function Documents() {
   const [declarationOpen, setDeclarationOpen] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [declarationCompleted, setDeclarationCompleted] = useState<boolean | null>(null);
   const { data, loading, error, refetch } = useDocuments();
 
-  const allReady = !!data && data.length > 0 && data.every((d) => d.latest_status === 'accepted' || d.latest_status === 'pending');
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getDeclaration()
+      .then((res) => {
+        if (!cancelled) setDeclarationCompleted(res.completed);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // The declaration questionnaire counts as one more required item — it's
+  // required, just not a file upload, so it isn't in `data` itself.
+  const allReady =
+    !!data && data.length > 0 && declarationCompleted === true &&
+    data.every((d) => d.latest_status === 'accepted' || d.latest_status === 'pending');
 
   useEffect(() => {
     if (allReady && localStorage.getItem(CELEBRATION_SHOWN_KEY) !== 'true') {
@@ -302,8 +309,9 @@ export function Documents() {
 
   const required = data.filter((d) => d.required);
   const optional = data.filter((d) => !d.required);
-  const processed = data.filter((d) => d.latest_status === 'accepted' || d.latest_status === 'pending').length;
-  const percent = data.length ? Math.round((processed / data.length) * 100) : 0;
+  const totalCount = data.length + 1; // +1 for the declaration questionnaire
+  const processed = data.filter((d) => d.latest_status === 'accepted' || d.latest_status === 'pending').length + (declarationCompleted ? 1 : 0);
+  const percent = totalCount ? Math.round((processed / totalCount) * 100) : 0;
 
   const renderCard = (item: DocumentChecklistItem) =>
     item.text_input ? (
@@ -322,7 +330,7 @@ export function Documents() {
           <div style={{ flex: 1 }}>
             <p className="success-bar-title">Готовність документів</p>
             <p className="success-bar-subtitle">
-              {processed} з {data.length} опрацьовано
+              {processed} з {totalCount} опрацьовано
             </p>
           </div>
           <span className="success-bar-percent">{percent}%</span>
@@ -344,11 +352,12 @@ export function Documents() {
         </button>
       )}
 
-      <DeclarationCard onOpen={() => setDeclarationOpen(true)} />
-
       <section>
         <h2 className="section-title">Обов'язкові документи</h2>
-        <div className="doc-group">{required.map(renderCard)}</div>
+        <div className="doc-group">
+          <DeclarationCard completed={declarationCompleted} onOpen={() => setDeclarationOpen(true)} />
+          {required.map(renderCard)}
+        </div>
       </section>
 
       <section>

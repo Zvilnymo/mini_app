@@ -43,6 +43,7 @@ export type MeResponse =
       case: CaseStatus | null;
       payments: Payments | null;
       debt_overview: DebtOverview | null;
+      lead_debt: number | null;
       days_active: number | null;
       docs_ready: number;
       docs_total: number;

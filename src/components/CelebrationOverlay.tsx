@@ -82,8 +82,6 @@ export function CelebrationOverlay({ onClose }: { onClose: () => void }) {
             <img src={director} alt={DIRECTOR.name} className="celebration-director-photo" />
           </div>
           <div className="celebration-director-body">
-            <p className="celebration-director-name">{DIRECTOR.name}</p>
-            <p className="celebration-director-role">{DIRECTOR.role}</p>
             <div className="celebration-director-text">
               {DIRECTOR.paragraphs.map((p) => (
                 <p key={p}>{p}</p>
@@ -103,7 +101,12 @@ export function CelebrationOverlay({ onClose }: { onClose: () => void }) {
               <p className="celebration-bonus-text">{DIRECTOR.bonusNote}</p>
             </div>
           </div>
-          <button type="button" className="btn-accent btn-accent--block" style={{ marginTop: 14, background: 'var(--tg-green)' }}>
+          <button
+            type="button"
+            className="btn-accent btn-accent--block"
+            style={{ marginTop: 14, background: 'var(--tg-green)' }}
+            onClick={onClose}
+          >
             <Headphones size={18} aria-hidden="true" />
             Звернутися до підтримки
           </button>
