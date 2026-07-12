@@ -66,6 +66,12 @@ export const api = {
     return request<{ ok: true; task_id: number }>('/api/complaints', { method: 'POST', body: form });
   },
 
+  uploadReceipt: (invoiceId: number, file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return request<{ ok: true }>(`/api/payments/${invoiceId}/receipt`, { method: 'POST', body: form });
+  },
+
   submitScreening: (answers: ScreeningAnswers) => {
     const form = new FormData();
     form.append('has_gambling_crypto', String(answers.hasGamblingCrypto));

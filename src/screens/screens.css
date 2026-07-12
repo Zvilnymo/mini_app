@@ -560,6 +560,12 @@
   color: var(--tg-muted);
 }
 
+.receipt-sent {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tg-green);
+}
+
 /* ---- Complaints (Cabinet) ---- */
 .complaint-trigger {
   display: flex;

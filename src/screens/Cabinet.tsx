@@ -1,11 +1,60 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Check, ChevronDown, Phone, User } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, Paperclip, Phone, User } from 'lucide-react';
 import { api } from '../api/client';
 import { useMe } from '../api/hooks';
+import { compressImageIfNeeded, isTooLargeToUpload } from '../lib/compressImage';
 import type { ComplaintDepartment } from '../api/types';
 
 function formatUah(amount: number): string {
   return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(amount) + ' грн';
+}
+
+function ReceiptUpload({ invoiceId }: { invoiceId: number }) {
+  const [uploading, setUploading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (sent) {
+    return <p className="receipt-sent">Квитанцію надіслано ✅</p>;
+  }
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const compressed = await compressImageIfNeeded(file);
+      if (isTooLargeToUpload(compressed)) {
+        setError('Файл завеликий навіть після стиснення');
+        return;
+      }
+      await api.uploadReceipt(invoiceId, compressed);
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Не вдалося завантажити квитанцію');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <label className="doc-upload-btn">
+        {uploading ? (
+          'Завантаження…'
+        ) : (
+          <>
+            <Paperclip size={14} aria-hidden="true" />
+            Завантажити чек
+          </>
+        )}
+        <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }} onChange={handleFile} disabled={uploading} />
+      </label>
+      {error && <p className="form-error">{error}</p>}
+    </div>
+  );
 }
 
 function DepartmentPicker({
@@ -257,19 +306,22 @@ export function Cabinet() {
                   return (
                     <div key={invoice.id}>
                       {i > 0 && <div className="card-list-divider" />}
-                      <div className="card-list-row" style={{ justifyContent: 'space-between' }}>
-                        <div>
-                          <p className="row-value">{invoice.title ?? 'Рахунок'}</p>
-                          <p className="row-label">
-                            {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('uk-UA') : ''}
-                          </p>
+                      <div className="card-list-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <div>
+                            <p className="row-value">{invoice.title ?? 'Рахунок'}</p>
+                            <p className="row-label">
+                              {invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString('uk-UA') : ''}
+                            </p>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <p className="row-value">{invoice.amount ? formatUah(Number(invoice.amount)) : '—'}</p>
+                            <p className="row-label" style={{ color: paid ? 'var(--tg-green)' : 'var(--tg-orange)' }}>
+                              {invoice.stage_name ?? invoice.stage_id}
+                            </p>
+                          </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <p className="row-value">{invoice.amount ? formatUah(Number(invoice.amount)) : '—'}</p>
-                          <p className="row-label" style={{ color: paid ? 'var(--tg-green)' : 'var(--tg-orange)' }}>
-                            {invoice.stage_name ?? invoice.stage_id}
-                          </p>
-                        </div>
+                        {!paid && <ReceiptUpload invoiceId={invoice.id} />}
                       </div>
                     </div>
                   );
