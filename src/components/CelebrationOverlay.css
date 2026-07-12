@@ -31,11 +31,24 @@
 
 .celebration-scroll {
   flex: 1;
+  /* Without this, a flex item defaults to min-height:auto — it never
+     shrinks below its content's height, so overflow-y:auto never actually
+     kicks in and the content just spills past the fixed viewport with no
+     way to scroll to it. Same fix already applied to .app-content. */
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 40px 20px 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.celebration-scroll > * {
+  /* Flex items default to flex-shrink:1 — without this, the hero/progress/
+     director/bonus cards get squashed to fit the visible height instead of
+     the container actually overflowing and scrolling to show them. */
+  flex-shrink: 0;
 }
 
 .celebration-hero {
