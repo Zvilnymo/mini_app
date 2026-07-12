@@ -1,11 +1,51 @@
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Check, Phone, User } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, Phone, User } from 'lucide-react';
 import { api } from '../api/client';
 import { useMe } from '../api/hooks';
 import type { ComplaintDepartment } from '../api/types';
 
 function formatUah(amount: number): string {
   return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(amount) + ' грн';
+}
+
+function DepartmentPicker({
+  departments,
+  value,
+  onChange,
+}: {
+  departments: ComplaintDepartment[];
+  value: string;
+  onChange: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selected = departments.find((d) => d.key === value);
+
+  return (
+    <div className="dept-picker">
+      <button type="button" className="text-input dept-picker-trigger" onClick={() => setOpen((o) => !o)}>
+        <span>{selected?.name ?? 'Оберіть відділ'}</span>
+        <ChevronDown size={18} className={`dept-picker-chevron${open ? ' dept-picker-chevron--open' : ''}`} aria-hidden="true" />
+      </button>
+      {open && (
+        <div className="dept-picker-list">
+          {departments.map((d) => (
+            <button
+              key={d.key}
+              type="button"
+              className={`dept-picker-option${d.key === value ? ' dept-picker-option--active' : ''}`}
+              onClick={() => {
+                onChange(d.key);
+                setOpen(false);
+              }}
+            >
+              {d.name}
+              {d.key === value && <Check size={16} strokeWidth={3} aria-hidden="true" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ComplaintBox() {
@@ -67,13 +107,7 @@ function ComplaintBox() {
 
   return (
     <div className="complaint-form">
-      <select className="text-input" value={department} onChange={(e) => setDepartment(e.target.value)}>
-        {departments.map((d) => (
-          <option key={d.key} value={d.key}>
-            {d.name}
-          </option>
-        ))}
-      </select>
+      <DepartmentPicker departments={departments} value={department} onChange={setDepartment} />
       <input
         className="text-input"
         placeholder="ПІБ співробітника, на якого скарга"
