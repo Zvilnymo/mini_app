@@ -521,6 +521,12 @@
   opacity: 0.6;
 }
 
+.doc-hint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--tg-muted);
+}
+
 /* ---- Complaints (Cabinet) ---- */
 .complaint-trigger {
   display: flex;

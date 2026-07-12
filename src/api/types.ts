@@ -55,6 +55,7 @@ export interface DocumentChecklistItem {
   required: boolean;
   uploadable: boolean;
   text_input: boolean;
+  multiple: boolean;
   uploaded_count: number;
   latest_status: 'accepted' | 'rejected' | 'uncertain' | 'pending' | null;
 }

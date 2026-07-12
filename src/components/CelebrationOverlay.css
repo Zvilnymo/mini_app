@@ -1,0 +1,236 @@
+.celebration {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--tg-bg);
+}
+
+.celebration-close {
+  position: absolute;
+  right: 14px;
+  top: calc(14px + var(--tgui--safe_area_inset_bottom, 0px) * 0);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: var(--tg-card);
+  color: var(--tg-muted);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.celebration-close:active {
+  opacity: 0.6;
+}
+
+.celebration-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.celebration-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 700ms ease, transform 700ms ease;
+}
+
+.celebration-hero--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.celebration-trophy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  background: var(--tg-green-bg);
+  color: var(--tg-green);
+}
+
+.celebration-sparkle {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  color: var(--tg-orange);
+}
+
+.celebration-title {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--tg-text);
+}
+
+.celebration-subtitle {
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--tg-muted);
+  max-width: 280px;
+}
+
+.celebration-highlight {
+  font-weight: 600;
+  color: var(--tg-green);
+}
+
+.celebration-progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tg-text);
+}
+
+.celebration-progress-percent {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tg-green);
+}
+
+.celebration-progress .success-bar-track {
+  margin-top: 10px;
+}
+
+.celebration-director,
+.celebration-bonus {
+  border-radius: 22px;
+  background: var(--tg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms ease 100ms, transform 700ms ease 100ms;
+}
+
+.celebration-director--in,
+.celebration-bonus--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.celebration-director-photo-wrap {
+  display: flex;
+  justify-content: center;
+  background: var(--tg-blue-bg);
+  padding-top: 16px;
+}
+
+.celebration-director-photo {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+.celebration-director-body {
+  padding: 16px 20px 20px;
+}
+
+.celebration-director-name {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tg-text);
+}
+
+.celebration-director-role {
+  text-align: center;
+  font-size: 13px;
+  color: var(--tg-accent);
+}
+
+.celebration-director-text {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.celebration-director-text p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--tg-text);
+}
+
+.celebration-director-signature {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--tg-border);
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--tg-muted);
+}
+
+.celebration-bonus {
+  background: var(--tg-green-bg);
+  padding: 18px;
+}
+
+.celebration-bonus-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.celebration-bonus-icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--tg-green);
+  color: #ffffff;
+}
+
+.celebration-bonus-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tg-text);
+}
+
+.celebration-bonus-text {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tg-text);
+  opacity: 0.8;
+}
+
+.celebration-back {
+  margin: 4px auto 0;
+  border: none;
+  background: none;
+  padding: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tg-muted);
+  cursor: pointer;
+}
+
+.celebration-back:active {
+  opacity: 0.6;
+}

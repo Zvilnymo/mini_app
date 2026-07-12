@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Check, CircleCheckBig, ClipboardList, Paperclip } from 'lucide-react';
 import { api } from '../api/client';
 import { useDocuments } from '../api/hooks';
+import { compressImageIfNeeded } from '../lib/compressImage';
+import { CelebrationOverlay } from '../components/CelebrationOverlay';
 import { useToast } from '../components/Toast';
 import { Declaration } from './Declaration';
 import type { DocumentChecklistItem } from '../api/types';
@@ -173,6 +175,7 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
   const { showError } = useToast();
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const tint = item.latest_status ? STATUS_TINT[item.latest_status] : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' };
   // A file made it in and wasn't rejected — show it as "done" regardless of
   // whether the AI gave a precise accepted/pending/uncertain verdict, so a
@@ -182,22 +185,28 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
   const cardModifier = isDone ? ' doc-card--done' : isRejected ? ' doc-card--rejected' : '';
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files ?? []);
     e.target.value = '';
-    if (!file) return;
+    if (files.length === 0) return;
     setUploading(true);
     setUploadError(null);
-    try {
-      const result = await api.uploadDocument(item.type, file);
-      if (result.validation_status === 'rejected') {
-        showError(REJECTION_MESSAGE);
+    let anyRejected = false;
+    let failure: string | null = null;
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress(files.length > 1 ? { done: i, total: files.length } : null);
+      try {
+        const compressed = await compressImageIfNeeded(files[i]);
+        const result = await api.uploadDocument(item.type, compressed);
+        if (result.validation_status === 'rejected') anyRejected = true;
+      } catch (err) {
+        failure = err instanceof Error ? err.message : 'Помилка завантаження';
       }
-      onUploaded();
-    } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Помилка завантаження');
-    } finally {
-      setUploading(false);
     }
+    setUploadProgress(null);
+    if (anyRejected) showError(REJECTION_MESSAGE);
+    if (failure) setUploadError(failure);
+    onUploaded();
+    setUploading(false);
   };
 
   return (
@@ -217,17 +226,26 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
             <StatusPill status={item.latest_status} />
           </div>
           {item.uploadable && (
-            <label className="doc-upload-btn">
-              {uploading ? (
-                'Завантаження…'
-              ) : (
-                <>
-                  <Paperclip size={16} aria-hidden="true" />
-                  {item.uploaded_count > 0 ? 'Замінити файл' : 'Завантажити'}
-                </>
-              )}
-              <input type="file" style={{ display: 'none' }} onChange={handleFile} disabled={uploading} />
-            </label>
+            <>
+              <label className="doc-upload-btn">
+                {uploading ? (
+                  uploadProgress ? `Завантаження ${uploadProgress.done + 1} з ${uploadProgress.total}…` : 'Завантаження…'
+                ) : (
+                  <>
+                    <Paperclip size={16} aria-hidden="true" />
+                    {item.uploaded_count > 0 ? 'Замінити файл' : 'Завантажити'}
+                  </>
+                )}
+                <input
+                  type="file"
+                  multiple={item.multiple}
+                  style={{ display: 'none' }}
+                  onChange={handleFile}
+                  disabled={uploading}
+                />
+              </label>
+              {item.multiple && !uploading && <p className="doc-hint">Можна обрати кілька файлів одразу</p>}
+            </>
           )}
           {uploadError && <p className="form-error">{uploadError}</p>}
         </div>
@@ -236,12 +254,28 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
   );
 }
 
+const CELEBRATION_SHOWN_KEY = 'zv_celebration_shown';
+
 export function Documents() {
   const [declarationOpen, setDeclarationOpen] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
   const { data, loading, error, refetch } = useDocuments();
+
+  const allReady = !!data && data.length > 0 && data.every((d) => d.latest_status === 'accepted' || d.latest_status === 'pending');
+
+  useEffect(() => {
+    if (allReady && localStorage.getItem(CELEBRATION_SHOWN_KEY) !== 'true') {
+      localStorage.setItem(CELEBRATION_SHOWN_KEY, 'true');
+      setShowCelebration(true);
+    }
+  }, [allReady]);
 
   if (declarationOpen) {
     return <Declaration onBack={() => setDeclarationOpen(false)} />;
+  }
+
+  if (showCelebration) {
+    return <CelebrationOverlay onClose={() => setShowCelebration(false)} />;
   }
 
   if (loading) {
@@ -297,6 +331,18 @@ export function Documents() {
           <div className="success-bar-fill" style={{ width: `${percent}%` }} />
         </div>
       </div>
+
+      {allReady && (
+        <button type="button" className="complaint-trigger" onClick={() => setShowCelebration(true)}>
+          <span className="row-icon" style={{ background: 'var(--tg-green-bg)', color: 'var(--tg-green)' }}>
+            🎉
+          </span>
+          <div>
+            <p className="row-value">Усі документи зібрано!</p>
+            <p className="row-label">Переглянути привітання</p>
+          </div>
+        </button>
+      )}
 
       <DeclarationCard onOpen={() => setDeclarationOpen(true)} />
 
