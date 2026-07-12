@@ -89,3 +89,60 @@ export interface DeclarationResponse {
   answers: Record<string, string>;
   completed: boolean;
 }
+
+export type ConferenceFormat = 'video' | 'phone' | 'office';
+export type ConferenceRsvp = '' | 'going' | 'declined';
+
+export interface ConferenceEvent {
+  event_id: number;
+  title: string;
+  description: string | null;
+  start_at: string;
+  duration_min: number;
+  format: ConferenceFormat;
+  link: string | null;
+  person_name: string | null;
+  person_role: string | null;
+  rsvp: ConferenceRsvp;
+  rsvp_at: string | null;
+  attended: boolean | null;
+  feedback_stars: number | null;
+  feedback_comment: string | null;
+}
+
+export interface EventType {
+  type_code: number;
+  title: string;
+  description: string | null;
+  active: boolean;
+}
+
+export interface EventInvitee {
+  client_id: number;
+  full_name: string;
+  phone: string;
+  rsvp: ConferenceRsvp;
+  rsvp_at: string | null;
+}
+
+export interface AdminEvent {
+  event_id: number;
+  type_code: number | null;
+  title: string;
+  description: string | null;
+  start_at: string;
+  duration_min: number;
+  format: ConferenceFormat;
+  link: string | null;
+  person_name: string | null;
+  person_role: string | null;
+  created_by: number;
+  created_at: string;
+}
+
+export interface ClientSearchResult {
+  id: number;
+  full_name: string;
+  phone: string;
+  telegram_id: number | null;
+}

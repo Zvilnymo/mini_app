@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './client';
-import type { DocumentChecklistItem, MeResponse } from './types';
+import type { ConferenceEvent, DocumentChecklistItem, MeResponse } from './types';
 
 interface AsyncState<T> {
   data: T | null;
@@ -67,6 +67,7 @@ function useResource<T>(resource: ReturnType<typeof createResource<T>>) {
 
 const meResource = createResource(api.me);
 const documentsResource = createResource(() => api.documents().then((res) => res.documents));
+const conferencesResource = createResource(() => api.getConferences().then((res) => res.events));
 
 export function useMe() {
   return useResource<MeResponse>(meResource);
@@ -74,4 +75,8 @@ export function useMe() {
 
 export function useDocuments() {
   return useResource<DocumentChecklistItem[]>(documentsResource);
+}
+
+export function useConferences() {
+  return useResource<ConferenceEvent[]>(conferencesResource);
 }

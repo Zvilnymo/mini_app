@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api/client';
+import { AdminConferences } from './AdminConferences';
 import './Splash.css';
 
 /**
  * Mirrors documents_bot's admin deep-link (/start admin_<code>) — opening
  * the mini app via https://t.me/<bot>/<app>?startapp=admin_<code> registers
  * the visiting Telegram user in docbot.admins instead of showing the normal
- * client app, same as the bot's own admin welcome message.
+ * client app, same as the bot's own admin welcome message. A second,
+ * independent code/scope (startapp=confadmin_<code>) registers for the
+ * Зустрічі admin panel instead — see main.py's register_admin.
  */
-export function AdminRegister({ code }: { code: string }) {
+export function AdminRegister({ code, panel }: { code: string; panel: 'documents' | 'conferences' }) {
   const [status, setStatus] = useState<'loading' | 'ok' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
 
@@ -21,6 +24,10 @@ export function AdminRegister({ code }: { code: string }) {
         setError(err instanceof Error ? err.message : 'Не вдалося зареєструвати');
       });
   }, [code]);
+
+  if (status === 'ok' && panel === 'conferences') {
+    return <AdminConferences />;
+  }
 
   return (
     <div className="splash">

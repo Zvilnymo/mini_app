@@ -566,6 +566,59 @@
   color: var(--tg-green);
 }
 
+/* ---- Conferences (Зустрічі) ---- */
+.conf-rsvp-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.conf-rsvp-row .btn-accent,
+.conf-rsvp-row .btn-outline {
+  flex: 1;
+  padding: 0 12px;
+}
+
+.conf-feedback {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--tg-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.conf-feedback-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tg-text);
+}
+
+.conf-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.conf-star-btn {
+  border: none;
+  background: none;
+  padding: 2px;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.conf-star-btn:active {
+  opacity: 0.6;
+}
+
+.conf-feedback-sent {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tg-border);
+  font-size: 14px;
+  color: var(--tg-muted);
+}
+
 /* ---- Complaints (Cabinet) ---- */
 .complaint-trigger {
   display: flex;

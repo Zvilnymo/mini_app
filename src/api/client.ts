@@ -1,5 +1,17 @@
 import { getInitDataRaw } from '../telegram/init';
-import type { ComplaintDepartment, DeclarationResponse, DocumentChecklistItem, MeResponse, UploadResult, Client } from './types';
+import type {
+  AdminEvent,
+  ClientSearchResult,
+  ComplaintDepartment,
+  ConferenceEvent,
+  DeclarationResponse,
+  DocumentChecklistItem,
+  EventInvitee,
+  EventType,
+  MeResponse,
+  UploadResult,
+  Client,
+} from './types';
 
 // Strip a trailing slash regardless of how VITE_API_URL was entered
 // (with or without one) — path always starts with '/', so a trailing
@@ -29,6 +41,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(`${res.status} ${url} -> ${body}`);
   }
   return res.json() as Promise<T>;
+}
+
+function postJson<T>(path: string, body: unknown, method = 'POST'): Promise<T> {
+  return request<T>(path, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
 
 export const api = {
@@ -89,12 +109,54 @@ export const api = {
 
   getDeclaration: () => request<DeclarationResponse>('/api/declaration'),
 
-  submitDeclaration: (answers: Record<string, string>) =>
-    request<{ ok: true }>('/api/declaration', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(answers),
-    }),
+  submitDeclaration: (answers: Record<string, string>) => postJson<{ ok: true }>('/api/declaration', answers),
+
+  // ---- Зустрічі (conferences) — client-facing ----
+
+  getConferences: () => request<{ events: ConferenceEvent[] }>('/api/conferences'),
+
+  submitConferenceRsvp: (eventId: number, rsvp: 'going' | 'declined') =>
+    postJson<{ ok: true }>(`/api/conferences/${eventId}/rsvp`, { rsvp }),
+
+  submitConferenceFeedback: (eventId: number, stars: number, comment: string) =>
+    postJson<{ ok: true }>(`/api/conferences/${eventId}/feedback`, { stars, comment: comment || null }),
+
+  // ---- Зустрічі — admin panel ----
+
+  adminListEventTypes: () => request<{ types: EventType[] }>('/api/admin/conferences/types'),
+
+  adminListEvents: (upcoming: boolean) =>
+    request<{ events: AdminEvent[] }>(`/api/admin/conferences/events?upcoming=${upcoming}`),
+
+  adminGetEvent: (eventId: number) =>
+    request<{ event: AdminEvent; invitees: EventInvitee[] }>(`/api/admin/conferences/events/${eventId}`),
+
+  adminCreateEvent: (fields: {
+    type_code: number | null;
+    title: string;
+    description?: string;
+    start_at: string;
+    duration_min: number;
+    format: string;
+    link?: string;
+    person_name?: string;
+    person_role?: string;
+    client_ids?: number[];
+  }) => postJson<{ ok: true; event_id: number }>('/api/admin/conferences/events', fields),
+
+  adminUpdateEvent: (eventId: number, field: string, value: string) =>
+    postJson<{ ok: true }>(`/api/admin/conferences/events/${eventId}`, { field, value }, 'PATCH'),
+
+  adminCancelEvent: (eventId: number) => request<{ ok: true }>(`/api/admin/conferences/events/${eventId}`, { method: 'DELETE' }),
+
+  adminSearchClients: (q: string) =>
+    request<{ clients: ClientSearchResult[] }>(`/api/admin/conferences/clients/search?q=${encodeURIComponent(q)}`),
+
+  adminInviteClients: (eventId: number, clientIds: number[]) =>
+    postJson<{ ok: true }>(`/api/admin/conferences/events/${eventId}/invite`, { client_ids: clientIds }),
+
+  adminMarkAttendance: (eventId: number, clientId: number, attended: boolean) =>
+    postJson<{ ok: true }>(`/api/admin/conferences/events/${eventId}/attendance`, { client_id: clientId, attended }),
 };
 
 export interface ScreeningAnswers {

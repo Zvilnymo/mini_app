@@ -1,0 +1,95 @@
+.admin-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--tg-border);
+  background: var(--tg-bg);
+  padding: 0 14px;
+  color: var(--tg-muted);
+}
+
+.admin-search-input {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--tg-text);
+}
+
+.admin-search-input::placeholder {
+  color: var(--tg-muted);
+}
+
+.admin-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.admin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  background: var(--tg-blue-bg);
+  color: var(--tg-accent);
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.admin-chip button {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-client-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.admin-client-row:active {
+  background: var(--tg-bg);
+}
+
+.admin-type-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-type-btn {
+  border-radius: 999px;
+  border: 1.5px solid var(--tg-border);
+  background: var(--tg-bg);
+  color: var(--tg-text);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.admin-type-btn--active {
+  border-color: var(--tg-accent);
+  background: var(--tg-accent);
+  color: #ffffff;
+}

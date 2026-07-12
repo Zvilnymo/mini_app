@@ -24,8 +24,11 @@ function App() {
   const ready = data?.registered && data.screening_completed;
 
   const startParam = getStartParam();
+  if (startParam?.startsWith('confadmin_')) {
+    return <AdminRegister code={startParam.slice('confadmin_'.length)} panel="conferences" />;
+  }
   if (startParam?.startsWith('admin_')) {
-    return <AdminRegister code={startParam.slice('admin_'.length)} />;
+    return <AdminRegister code={startParam.slice('admin_'.length)} panel="documents" />;
   }
 
   return (
