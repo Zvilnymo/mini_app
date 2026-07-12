@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { AdminRegister } from './components/AdminRegister';
 import { AppGate } from './components/AppGate';
 import { TabBar, type TabKey } from './components/TabBar';
 import { ToastProvider } from './components/Toast';
 import { useMe } from './api/hooks';
+import { getStartParam } from './telegram/init';
 import { Cabinet } from './screens/Cabinet';
 import { Chat } from './screens/Chat';
 import { Conferences } from './screens/Conferences';
@@ -20,6 +22,11 @@ function App() {
   // bar know whether onboarding (registration/anketa) is still in progress.
   const { data } = useMe();
   const ready = data?.registered && data.screening_completed;
+
+  const startParam = getStartParam();
+  if (startParam?.startsWith('admin_')) {
+    return <AdminRegister code={startParam.slice('admin_'.length)} />;
+  }
 
   return (
     <ToastProvider>

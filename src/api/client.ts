@@ -71,6 +71,12 @@ export const api = {
     return request<{ ok: true }>('/api/screening', { method: 'POST', body: form });
   },
 
+  registerAdmin: (code: string) => {
+    const form = new FormData();
+    form.append('code', code);
+    return request<{ ok: true }>('/api/admin/register', { method: 'POST', body: form });
+  },
+
   getDeclaration: () => request<DeclarationResponse>('/api/declaration'),
 
   submitDeclaration: (answers: Record<string, string>) =>

@@ -9,6 +9,7 @@ import {
   retrieveLaunchParams,
   restoreInitData,
   initDataRaw,
+  initDataStartParam,
 } from '@telegram-apps/sdk-react';
 
 /**
@@ -99,4 +100,13 @@ export function getInitDataRaw(): string {
     throw new Error('initData is not available yet — call initTelegram() first');
   }
   return raw;
+}
+
+/**
+ * The `startapp=<payload>` value from a deep link that opened the mini app
+ * (e.g. https://t.me/<bot>/<app>?startapp=admin_<code>), mirroring
+ * documents_bot's `/start admin_<code>` — see AdminRegister.tsx.
+ */
+export function getStartParam(): string | undefined {
+  return initDataStartParam();
 }
