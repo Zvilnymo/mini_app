@@ -133,13 +133,12 @@
   display: flex;
   justify-content: center;
   background: var(--tg-blue-bg);
-  padding-top: 16px;
 }
 
 .celebration-director-photo {
-  width: 220px;
+  width: 100%;
   height: auto;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .celebration-director-body {
