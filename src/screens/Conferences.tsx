@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, CalendarClock, Check, ChevronRight, MapPin, Phone, Star, Video } from 'lucide-react';
+import { ArrowLeft, Briefcase, CalendarClock, ChevronRight, FileText, MapPin, Phone, Scale, Shield, Star, Users, Video } from 'lucide-react';
 import { api } from '../api/client';
 import { useConferences } from '../api/hooks';
 import type { ConferenceChecklistItem, ConferenceEvent, ConferenceFormat } from '../api/types';
@@ -12,6 +12,16 @@ const FORMAT_META: Record<ConferenceFormat, { icon: typeof Video; label: string 
 
 const DONE_TINT = { background: 'var(--tg-green-bg)', color: 'var(--tg-green)' };
 
+// One icon per required conference type (type_code, see docbot.event_types)
+// so the checklist strip reads at a glance instead of five identical dots.
+const CHECKLIST_ICONS: Record<number, typeof FileText> = {
+  1: FileText, // Збір документів
+  2: Shield, // Служба безпеки
+  3: Scale, // Юридична підготовка
+  4: Users, // Документи збираємо разом
+  5: Briefcase, // Зустріч з арбітражним керуючим
+};
+
 function formatDateTime(iso: string): { date: string; time: string } {
   const d = new Date(iso);
   return {
@@ -20,13 +30,14 @@ function formatDateTime(iso: string): { date: string; time: string } {
   };
 }
 
-function ChecklistRow({ item }: { item: ConferenceChecklistItem }) {
+function ChecklistAvatar({ item }: { item: ConferenceChecklistItem }) {
+  const Icon = CHECKLIST_ICONS[item.type_code] ?? CalendarClock;
   return (
-    <div className="card-list-row">
-      <span className="row-icon" style={item.completed ? DONE_TINT : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' }}>
-        {item.completed ? <Check size={16} strokeWidth={3} aria-hidden="true" /> : <CalendarClock size={16} aria-hidden="true" />}
+    <div className={`conf-checklist-item${item.completed ? ' done' : ''}`}>
+      <span className="conf-checklist-avatar">
+        <Icon size={19} aria-hidden="true" />
       </span>
-      <p className="row-value" style={{ flex: 1 }}>{item.title}</p>
+      <span className="conf-checklist-item-title">{item.title}</span>
     </div>
   );
 }
@@ -273,22 +284,21 @@ export function Conferences() {
       {checklist.length > 0 && (
         <section>
           <h2 className="section-title">Обов'язкові зустрічі</h2>
-          <div className="card-list">
-            <div className="card-list-row">
-              <span className="row-icon" style={DONE_TINT}>
-                <CalendarClock size={18} aria-hidden="true" />
-              </span>
-              <p className="row-value" style={{ flex: 1 }}>
-                {completedCount} з {checklist.length} пройдено
-              </p>
-              <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--tg-green)' }}>{percent}%</span>
-            </div>
-            {checklist.map((c) => (
-              <div key={c.type_code}>
-                <div className="card-list-divider" />
-                <ChecklistRow item={c} />
+          <div className="card conf-checklist-card">
+            <div className="conf-checklist-top">
+              <div>
+                <p className="conf-checklist-title">
+                  {completedCount} з {checklist.length} пройдено
+                </p>
+                <p className="row-label">Обов'язкові зустрічі</p>
               </div>
-            ))}
+              <span className="conf-checklist-percent">{percent}%</span>
+            </div>
+            <div className="conf-checklist-strip">
+              {checklist.map((c) => (
+                <ChecklistAvatar key={c.type_code} item={c} />
+              ))}
+            </div>
           </div>
         </section>
       )}

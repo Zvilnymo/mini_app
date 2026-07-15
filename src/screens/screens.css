@@ -646,6 +646,85 @@
   overflow: hidden;
 }
 
+.conf-checklist-card {
+  padding: 16px;
+}
+
+.conf-checklist-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.conf-checklist-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tg-text);
+  margin: 0;
+}
+
+.conf-checklist-percent {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tg-green);
+}
+
+.conf-checklist-strip {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.conf-checklist-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.conf-checklist-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 64px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.conf-checklist-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tg-bg);
+  color: var(--tg-muted);
+  border: 2px solid var(--tg-border);
+}
+
+.conf-checklist-item.done .conf-checklist-avatar {
+  background: var(--tg-green-bg);
+  color: var(--tg-green);
+  border-color: var(--tg-green);
+}
+
+.conf-checklist-item-title {
+  font-size: 10.5px;
+  line-height: 1.25;
+  color: var(--tg-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.conf-checklist-item.done .conf-checklist-item-title {
+  color: var(--tg-text);
+  font-weight: 500;
+}
+
 .conf-card-more {
   display: inline-flex;
   flex-shrink: 0;
