@@ -35,10 +35,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
+    // FastAPI's HTTPException responses are {"detail": "..."} — surface that
+    // human-readable message directly (e.g. shown in a form-error banner)
+    // instead of the raw status/URL/body dump.
+    let detail = '';
+    try {
+      detail = JSON.parse(body)?.detail ?? '';
+    } catch {
+      // not JSON — fall through to the raw dump below
+    }
     // Report the actual resolved URL, not just the intended path — if
     // VITE_API_URL didn't make it into this build, BASE_URL is empty and
     // the real request silently goes to a relative (wrong) origin instead.
-    throw new Error(`${res.status} ${url} -> ${body}`);
+    throw new Error(typeof detail === 'string' && detail ? detail : `${res.status} ${url} -> ${body}`);
   }
   return res.json() as Promise<T>;
 }
