@@ -235,11 +235,7 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
                 ) : (
                   <>
                     <Paperclip size={16} aria-hidden="true" />
-                    {item.uploaded_count === 0
-                      ? 'Завантажити'
-                      : item.multiple
-                        ? 'Додати ще один документ'
-                        : 'Замінити файл'}
+                    {item.uploaded_count === 0 ? 'Завантажити' : 'Додати ще один документ'}
                   </>
                 )}
                 <input
@@ -250,9 +246,10 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
                   disabled={uploading}
                 />
               </label>
-              {item.multiple && !uploading && (
+              {!uploading && (item.uploaded_count > 0 || item.multiple) && (
                 <p className="doc-hint">
-                  {item.uploaded_count > 0 ? `Завантажено: ${item.uploaded_count}. Можна обрати кілька файлів одразу` : 'Можна обрати кілька файлів одразу'}
+                  {item.uploaded_count > 0 && `Завантажено: ${item.uploaded_count}. `}
+                  {item.multiple && 'Можна обрати кілька файлів одразу'}
                 </p>
               )}
             </>
