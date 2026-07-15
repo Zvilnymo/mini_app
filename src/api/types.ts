@@ -116,6 +116,14 @@ export interface EventType {
   title: string;
   description: string | null;
   active: boolean;
+  required: boolean;
+}
+
+export interface ConferenceChecklistItem {
+  type_code: number;
+  title: string;
+  description: string | null;
+  completed: boolean;
 }
 
 export interface EventInvitee {

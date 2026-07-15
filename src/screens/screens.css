@@ -624,6 +624,29 @@
   color: var(--tg-muted);
 }
 
+.conf-card-header:active {
+  opacity: 0.6;
+}
+
+.conf-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.conf-detail-description {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--tg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--tg-text);
+  white-space: pre-wrap;
+}
+
 /* ---- Complaints (Cabinet) ---- */
 .complaint-trigger {
   display: flex;

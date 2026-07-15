@@ -3,6 +3,7 @@ import type {
   AdminEvent,
   ClientSearchResult,
   ComplaintDepartment,
+  ConferenceChecklistItem,
   ConferenceEvent,
   DeclarationResponse,
   DocumentChecklistItem,
@@ -122,7 +123,7 @@ export const api = {
 
   // ---- Зустрічі (conferences) — client-facing ----
 
-  getConferences: () => request<{ events: ConferenceEvent[] }>('/api/conferences'),
+  getConferences: () => request<{ events: ConferenceEvent[]; checklist: ConferenceChecklistItem[] }>('/api/conferences'),
 
   submitConferenceRsvp: (eventId: number, rsvp: 'going' | 'declined') =>
     postJson<{ ok: true }>(`/api/conferences/${eventId}/rsvp`, { rsvp }),
