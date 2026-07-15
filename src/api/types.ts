@@ -60,6 +60,7 @@ export interface DocumentChecklistItem {
   multiple: boolean;
   uploaded_count: number;
   latest_status: 'accepted' | 'rejected' | 'uncertain' | 'pending' | null;
+  video_url: string | null;
 }
 
 export interface UploadResult {

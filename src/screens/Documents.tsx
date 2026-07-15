@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, CircleCheckBig, ClipboardList, Paperclip } from 'lucide-react';
+import { Check, CircleCheckBig, ClipboardList, Paperclip, PlayCircle } from 'lucide-react';
 import { api } from '../api/client';
 import { useDocuments } from '../api/hooks';
 import { compressImageIfNeeded, isTooLargeToUpload } from '../lib/compressImage';
@@ -248,6 +248,12 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
               </label>
               {item.multiple && !uploading && <p className="doc-hint">Можна обрати кілька файлів одразу</p>}
             </>
+          )}
+          {item.video_url && (
+            <a href={item.video_url} target="_blank" rel="noreferrer" className="doc-video-link">
+              <PlayCircle size={14} aria-hidden="true" />
+              Відео-інструкція: де взяти цей документ
+            </a>
           )}
           {uploadError && <p className="form-error">{uploadError}</p>}
         </div>
