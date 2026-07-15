@@ -128,6 +128,8 @@ export const api = {
   submitConferenceRsvp: (eventId: number, rsvp: 'going' | 'declined') =>
     postJson<{ ok: true }>(`/api/conferences/${eventId}/rsvp`, { rsvp }),
 
+  joinConference: (eventId: number) => request<{ ok: true; marked: boolean }>(`/api/conferences/${eventId}/join`, { method: 'POST' }),
+
   submitConferenceFeedback: (eventId: number, stars: number, comment: string) =>
     postJson<{ ok: true }>(`/api/conferences/${eventId}/feedback`, { stars, comment: comment || null }),
 

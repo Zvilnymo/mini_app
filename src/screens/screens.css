@@ -635,6 +635,16 @@
   overflow: hidden;
 }
 
+.conf-card-more {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tg-accent);
+}
+
 .conf-detail-description {
   margin-top: 16px;
   padding: 16px;

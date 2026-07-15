@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, CalendarClock, Check, MapPin, Phone, Star, Video } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Check, ChevronRight, MapPin, Phone, Star, Video } from 'lucide-react';
 import { api } from '../api/client';
 import { useConferences } from '../api/hooks';
 import type { ConferenceChecklistItem, ConferenceEvent, ConferenceFormat } from '../api/types';
@@ -20,23 +20,13 @@ function formatDateTime(iso: string): { date: string; time: string } {
   };
 }
 
-function ChecklistTypeCard({ item }: { item: ConferenceChecklistItem }) {
+function ChecklistRow({ item }: { item: ConferenceChecklistItem }) {
   return (
-    <div className={`doc-card${item.completed ? ' doc-card--done' : ''}`}>
-      <div className="doc-card-top">
-        <span className="doc-icon" style={item.completed ? DONE_TINT : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' }}>
-          <CalendarClock size={20} aria-hidden="true" />
-          {item.completed && (
-            <span className="doc-icon-check">
-              <Check size={13} strokeWidth={3.5} aria-hidden="true" />
-            </span>
-          )}
-        </span>
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <p className="doc-title">{item.title}</p>
-          {item.description && <p className="row-label">{item.description}</p>}
-        </div>
-      </div>
+    <div className="card-list-row">
+      <span className="row-icon" style={item.completed ? DONE_TINT : { background: 'var(--tg-bg)', color: 'var(--tg-muted)' }}>
+        {item.completed ? <Check size={16} strokeWidth={3} aria-hidden="true" /> : <CalendarClock size={16} aria-hidden="true" />}
+      </span>
+      <p className="row-value" style={{ flex: 1 }}>{item.title}</p>
     </div>
   );
 }
@@ -114,6 +104,14 @@ function ConferenceCard({
     }
   };
 
+  const join = () => {
+    // Fire-and-forget: the backend only actually marks attendance once the
+    // meeting has started, so an early tap doesn't falsely count. Opening
+    // the link shouldn't wait on that request either way.
+    api.joinConference(event.event_id).then(onChanged).catch(() => {});
+    window.open(event.link!, '_blank', 'noopener,noreferrer');
+  };
+
   let statusTint: { background: string; color: string };
   let statusLabel: string;
   if (isPast) {
@@ -159,9 +157,15 @@ function ConferenceCard({
               {statusLabel}
             </span>
           </div>
-          <p className="row-label">
-            {date}, {time} · {label}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+            <p className="row-label">
+              {date}, {time} · {label}
+            </p>
+            <span className="conf-card-more">
+              Детальніше
+              <ChevronRight size={14} aria-hidden="true" />
+            </span>
+          </div>
         </div>
       </button>
 
@@ -177,10 +181,10 @@ function ConferenceCard({
       )}
 
       {!isPast && event.rsvp === 'going' && event.link && (
-        <a href={event.link} target="_blank" rel="noreferrer" className="btn-accent btn-accent--block" style={{ marginTop: 12, textDecoration: 'none' }}>
+        <button type="button" className="btn-accent btn-accent--block" style={{ marginTop: 12 }} onClick={join}>
           <Video size={18} aria-hidden="true" />
           Приєднатися
-        </a>
+        </button>
       )}
 
       {isPast && event.rsvp === 'going' && event.feedback_stars == null && (
@@ -267,39 +271,31 @@ export function Conferences() {
   return (
     <div className="screen">
       {checklist.length > 0 && (
-        <>
-          <div className="success-bar">
-            <div className="success-bar-top">
-              <span className="row-icon" style={{ width: 44, height: 44, background: 'var(--tg-green-bg)', color: 'var(--tg-green)' }}>
-                <CalendarClock size={24} aria-hidden="true" />
+        <section>
+          <h2 className="section-title">Обов'язкові зустрічі</h2>
+          <div className="card-list">
+            <div className="card-list-row">
+              <span className="row-icon" style={DONE_TINT}>
+                <CalendarClock size={18} aria-hidden="true" />
               </span>
-              <div style={{ flex: 1 }}>
-                <p className="success-bar-title">Відвідано зустрічей</p>
-                <p className="success-bar-subtitle">
-                  {completedCount} з {checklist.length}
-                </p>
+              <p className="row-value" style={{ flex: 1 }}>
+                {completedCount} з {checklist.length} пройдено
+              </p>
+              <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--tg-green)' }}>{percent}%</span>
+            </div>
+            {checklist.map((c) => (
+              <div key={c.type_code}>
+                <div className="card-list-divider" />
+                <ChecklistRow item={c} />
               </div>
-              <span className="success-bar-percent">{percent}%</span>
-            </div>
-            <div className="success-bar-track">
-              <div className="success-bar-fill" style={{ width: `${percent}%` }} />
-            </div>
+            ))}
           </div>
-
-          <section>
-            <h2 className="section-title">Обов'язкові зустрічі</h2>
-            <div className="doc-group">
-              {checklist.map((c) => (
-                <ChecklistTypeCard key={c.type_code} item={c} />
-              ))}
-            </div>
-          </section>
-        </>
+        </section>
       )}
 
       {upcoming.length > 0 && (
         <section>
-          <h2 className="section-title">Найближчі</h2>
+          <h2 className="section-title">Заплановані конференції</h2>
           <div className="doc-group">
             {upcoming.map((e) => (
               <ConferenceCard key={e.event_id} event={e} onChanged={refetch} onOpen={() => setSelectedEvent(e)} />
