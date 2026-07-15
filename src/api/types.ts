@@ -133,6 +133,7 @@ export interface EventInvitee {
   phone: string;
   rsvp: ConferenceRsvp;
   rsvp_at: string | null;
+  attended: boolean | null;
 }
 
 export interface AdminEvent {

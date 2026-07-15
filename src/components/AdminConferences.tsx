@@ -241,6 +241,7 @@ function EventDetailView({ eventId, onBack, onCancelled }: { eventId: number; on
 
   const markAttendance = async (clientId: number, attended: boolean) => {
     await api.adminMarkAttendance(eventId, clientId, attended);
+    load();
   };
 
   if (!event) {
@@ -283,10 +284,18 @@ function EventDetailView({ eventId, onBack, onCancelled }: { eventId: number; on
                 </div>
                 {isPast && inv.rsvp === 'going' && (
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button type="button" className="btn-outline" onClick={() => markAttendance(inv.client_id, true)}>
+                    <button
+                      type="button"
+                      className={inv.attended === true ? 'btn-accent' : 'btn-outline'}
+                      onClick={() => markAttendance(inv.client_id, true)}
+                    >
                       Був(ла)
                     </button>
-                    <button type="button" className="btn-outline" onClick={() => markAttendance(inv.client_id, false)}>
+                    <button
+                      type="button"
+                      className={inv.attended === false ? 'btn-accent' : 'btn-outline'}
+                      onClick={() => markAttendance(inv.client_id, false)}
+                    >
                       Не був(ла)
                     </button>
                   </div>
