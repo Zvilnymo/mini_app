@@ -17,6 +17,14 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Chat is a messenger layout (pinned header + composer, only the message
+   list scrolls) rather than the whole-page-scrolls pattern every other
+   .screen uses — scoped to just the panel that holds it so nothing else
+   is affected. */
+.tab-panel:has(.chat-screen) {
+  height: 100%;
+}
+
 /* Panels stay mounted permanently (see App.tsx) — [hidden] removes a panel
    from the render tree, so this animation naturally restarts each time a
    panel goes from hidden back to visible, without any remount. */

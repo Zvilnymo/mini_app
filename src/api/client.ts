@@ -1,6 +1,7 @@
 import { getInitDataRaw } from '../telegram/init';
 import type {
   AdminEvent,
+  ChatMessage,
   ClientSearchResult,
   ComplaintDepartment,
   ConferenceChecklistItem,
@@ -120,6 +121,12 @@ export const api = {
   getDeclaration: () => request<DeclarationResponse>('/api/declaration'),
 
   submitDeclaration: (answers: Record<string, string>) => postJson<{ ok: true }>('/api/declaration', answers),
+
+  // ---- AI-чат ----
+
+  getChatMessages: () => request<{ messages: ChatMessage[] }>('/api/chat/messages'),
+
+  sendChatMessage: (text: string) => postJson<{ category: string; reply: string }>('/api/chat/messages', { text }),
 
   // ---- Зустрічі (conferences) — client-facing ----
 

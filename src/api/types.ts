@@ -157,3 +157,11 @@ export interface ClientSearchResult {
   phone: string;
   telegram_id: number | null;
 }
+
+export type ChatRole = 'user' | 'assistant';
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+  created_at: string;
+}
