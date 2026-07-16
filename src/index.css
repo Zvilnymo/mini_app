@@ -5,9 +5,13 @@
   --tgui--safe_area_inset_bottom: var(--tg-viewport-safe-area-inset-bottom, 0px);
 
   /* Design tokens ported from the approved visual prototype (mini_app/grafic).
-     Light values below; overridden for dark in the prefers-color-scheme block
-     — production dark mode is driven by Telegram's real client theme via the
-     OS/WebView color scheme, not a manual toggle. */
+     Light values below; overridden for dark either by the OS/WebView's own
+     color-scheme (prefers-color-scheme, as a fallback for the brief moment
+     before Telegram's SDK has mounted) or, once mounted, by src/telegram/
+     init.ts stamping [data-theme] onto <html> from miniApp.isDark — the
+     actual Telegram in-app theme signal, which the OS scheme doesn't always
+     match. The [data-theme] blocks below intentionally come after this one
+     and the media query, so they win via source order when both apply. */
   --tg-bg: #eef2f6;
   --tg-card: #ffffff;
   --tg-elevated: #ffffff;
@@ -41,6 +45,40 @@
     --tg-orange-bg: #382a17;
     --tg-blue-bg: #12293a;
   }
+}
+
+/* Telegram's actual in-app theme (see src/telegram/init.ts) — takes
+   priority over the prefers-color-scheme guess above once the SDK mounts. */
+:root[data-theme='dark'] {
+  --tg-bg: #0e1621;
+  --tg-card: #17212b;
+  --tg-elevated: #1d2a38;
+  --tg-text: #f2f5f8;
+  --tg-muted: #7d8b99;
+  --tg-border: #24303d;
+  --tg-green: #4fce6f;
+  --tg-green-bg: #16321f;
+  --tg-red: #f2695e;
+  --tg-red-bg: #38201d;
+  --tg-orange: #f5a63c;
+  --tg-orange-bg: #382a17;
+  --tg-blue-bg: #12293a;
+}
+
+:root[data-theme='light'] {
+  --tg-bg: #eef2f6;
+  --tg-card: #ffffff;
+  --tg-elevated: #ffffff;
+  --tg-text: #1c2733;
+  --tg-muted: #8a97a5;
+  --tg-border: #e7ecf1;
+  --tg-green: #2fb457;
+  --tg-green-bg: #e6f6ec;
+  --tg-red: #e0453a;
+  --tg-red-bg: #fce9e7;
+  --tg-orange: #f08a1d;
+  --tg-orange-bg: #fdf0e0;
+  --tg-blue-bg: #e6f4fd;
 }
 
 * {

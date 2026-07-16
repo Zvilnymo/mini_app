@@ -90,6 +90,24 @@ async function runInit() {
   attempt(() => themeParams.bindCssVars.isAvailable() && !themeParams.isCssVarsBound() && themeParams.bindCssVars());
   attempt(() => miniApp.bindCssVars.isAvailable() && !miniApp.isCssVarsBound() && miniApp.bindCssVars());
 
+  // Our own light/dark palette (--tg-bg, --tg-text, etc. in index.css) was
+  // keyed off `prefers-color-scheme`, which reflects the OS/WebView theme —
+  // not Telegram's own in-app theme toggle. On most platforms those are the
+  // same, but not always, which is exactly why switching the theme inside
+  // Telegram sometimes did nothing. miniApp.isDark is the real signal for
+  // Telegram's actual selected theme, so mirror it onto <html data-theme>,
+  // which index.css's :root[data-theme=...] blocks take priority over the
+  // media query.
+  attempt(() => {
+    const applyTheme = (isDark: boolean) => {
+      document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
+    };
+    if (miniApp.isMounted()) {
+      applyTheme(miniApp.isDark());
+      miniApp.isDark.sub((isDark) => applyTheme(isDark));
+    }
+  });
+
   return retrieveLaunchParams();
 }
 
