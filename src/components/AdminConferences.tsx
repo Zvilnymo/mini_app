@@ -7,17 +7,10 @@ import type {
   AdminEvent,
   ClientConferenceFilter,
   ClientSearchResult,
-  ConferenceFormat,
   EventInvitee,
   EventType,
 } from '../api/types';
 import './AdminConferences.css';
-
-const FORMAT_OPTIONS: { value: ConferenceFormat; label: string }[] = [
-  { value: 'video', label: 'Відеозустріч' },
-  { value: 'phone', label: 'Телефонна розмова' },
-  { value: 'office', label: 'Зустріч в офісі' },
-];
 
 function fmtDateTime(iso: string): string {
   return new Date(iso).toLocaleString('uk-UA', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
@@ -103,10 +96,7 @@ function CreateEventView({ onDone, onCancel }: { onDone: () => void; onCancel: (
   const [description, setDescription] = useState('');
   const [startAt, setStartAt] = useState('');
   const [durationMin, setDurationMin] = useState(30);
-  const [format, setFormat] = useState<ConferenceFormat>('video');
   const [link, setLink] = useState('');
-  const [personName, setPersonName] = useState('');
-  const [personRole, setPersonRole] = useState('');
   const [clients, setClients] = useState<ClientSearchResult[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,10 +125,8 @@ function CreateEventView({ onDone, onCancel }: { onDone: () => void; onCancel: (
         description: description.trim() || undefined,
         start_at: new Date(startAt).toISOString(),
         duration_min: durationMin,
-        format,
+        format: 'video',
         link: link.trim() || undefined,
-        person_name: personName.trim() || undefined,
-        person_role: personRole.trim() || undefined,
         client_ids: clients.map((c) => c.id),
       });
       onDone();
@@ -192,16 +180,7 @@ function CreateEventView({ onDone, onCancel }: { onDone: () => void; onCancel: (
           value={durationMin}
           onChange={(e) => setDurationMin(Number(e.target.value) || 30)}
         />
-        <select className="text-input" value={format} onChange={(e) => setFormat(e.target.value as ConferenceFormat)}>
-          {FORMAT_OPTIONS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
         <input className="text-input" placeholder="Посилання на зустріч" value={link} onChange={(e) => setLink(e.target.value)} />
-        <input className="text-input" placeholder="Ім'я юриста" value={personName} onChange={(e) => setPersonName(e.target.value)} />
-        <input className="text-input" placeholder="Посада" value={personRole} onChange={(e) => setPersonRole(e.target.value)} />
       </div>
 
       <section>
