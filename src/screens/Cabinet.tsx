@@ -30,6 +30,7 @@ function ReceiptUpload({ invoiceId, pending }: { invoiceId: number; pending: boo
         setError('Файл завеликий навіть після стиснення');
         return;
       }
+      api.trackUploadAttempt('payment_receipt', 'file');
       await api.uploadReceipt(invoiceId, compressed);
       setSent(true);
     } catch (err) {
