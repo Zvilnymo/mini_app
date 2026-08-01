@@ -158,6 +158,50 @@ export interface ClientSearchResult {
   telegram_id: number | null;
 }
 
+export type ClientConferenceFilter = 'all' | 'completed' | 'active' | 'never';
+
+export interface AdminClientRow {
+  id: number;
+  full_name: string;
+  phone: string;
+  telegram_id: number | null;
+  blocked: boolean;
+  attended_count: number;
+}
+
+export interface AdminClientEventRef {
+  event_id: number;
+  title: string;
+  start_at: string;
+  type_code: number | null;
+}
+
+export interface AdminClientStats {
+  attended_count: number;
+  attended_events: AdminClientEventRef[];
+  confirmed_count: number;
+  confirmed_events: AdminClientEventRef[];
+  attended_types: { type_code: number; title: string }[];
+  total_types: number;
+  completed_types: number;
+}
+
+export interface AdminClientDetail {
+  client: {
+    id: number;
+    full_name: string;
+    phone: string;
+    telegram_id: number | null;
+    blocked: boolean;
+  };
+  stats: AdminClientStats;
+}
+
+export interface PhoneLookupResult {
+  matched: { id: number; full_name: string; phone: string }[];
+  unmatched: string[];
+}
+
 export type ChatRole = 'user' | 'assistant';
 
 export interface ChatMessage {

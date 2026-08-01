@@ -1,7 +1,10 @@
 import { getInitDataRaw } from '../telegram/init';
 import type {
+  AdminClientDetail,
+  AdminClientRow,
   AdminEvent,
   ChatMessage,
+  ClientConferenceFilter,
   ClientSearchResult,
   ComplaintDepartment,
   ConferenceChecklistItem,
@@ -11,6 +14,7 @@ import type {
   EventInvitee,
   EventType,
   MeResponse,
+  PhoneLookupResult,
   UploadResult,
   Client,
 } from './types';
@@ -176,6 +180,22 @@ export const api = {
 
   adminMarkAttendance: (eventId: number, clientId: number, attended: boolean) =>
     postJson<{ ok: true }>(`/api/admin/conferences/events/${eventId}/attendance`, { client_id: clientId, attended }),
+
+  // ---- Зустрічі — admin: Клієнти ----
+
+  adminListClients: (filter: ClientConferenceFilter) =>
+    request<{ clients: AdminClientRow[] }>(`/api/admin/conferences/clients?filter=${filter}`),
+
+  adminGetClient: (clientId: number) => request<AdminClientDetail>(`/api/admin/conferences/clients/${clientId}`),
+
+  adminBlockClient: (clientId: number) => request<{ ok: true }>(`/api/admin/conferences/clients/${clientId}/block`, { method: 'POST' }),
+
+  adminUnblockClient: (clientId: number) =>
+    request<{ ok: true }>(`/api/admin/conferences/clients/${clientId}/unblock`, { method: 'POST' }),
+
+  // ---- Зустрічі — admin: Кастомна конференція ----
+
+  adminLookupPhones: (phones: string[]) => postJson<PhoneLookupResult>('/api/admin/conferences/clients/lookup-phones', { phones }),
 };
 
 export interface ScreeningAnswers {
