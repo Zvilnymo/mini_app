@@ -196,6 +196,20 @@ export const api = {
   // ---- Зустрічі — admin: Кастомна конференція ----
 
   adminLookupPhones: (phones: string[]) => postJson<PhoneLookupResult>('/api/admin/conferences/clients/lookup-phones', { phones }),
+
+  // ---- Analytics ----
+  // Fire-and-forget: a tracking failure (network blip, not-yet-registered
+  // client, etc.) must never surface to the user or block the action it's
+  // describing — swallow errors here rather than making every call site
+  // remember to .catch() this itself.
+
+  trackScreenView: (screen: string) => {
+    postJson<{ ok: true }>('/api/analytics/track', { kind: 'screen_view', screen }).catch(() => {});
+  },
+
+  trackUploadAttempt: (documentType: string, method: 'file' | 'text') => {
+    postJson<{ ok: true }>('/api/analytics/track', { kind: 'document_upload_attempt', document_type: documentType, method }).catch(() => {});
+  },
 };
 
 export interface ScreeningAnswers {

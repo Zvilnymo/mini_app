@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AdminRegister } from './components/AdminRegister';
 import { AppGate } from './components/AppGate';
 import { TabBar, type TabKey } from './components/TabBar';
 import { ToastProvider } from './components/Toast';
+import { api } from './api/client';
 import { useMe } from './api/hooks';
 import { getStartParam } from './telegram/init';
 import { Cabinet } from './screens/Cabinet';
@@ -22,6 +23,13 @@ function App() {
   // bar know whether onboarding (registration/anketa) is still in progress.
   const { data } = useMe();
   const ready = data?.registered && data.screening_completed;
+
+  // All tab screens stay mounted (see below), so a mount effect inside each
+  // one would only ever fire once — tracking has to live here, keyed on the
+  // tab switch itself.
+  useEffect(() => {
+    if (ready) api.trackScreenView(activeTab);
+  }, [activeTab, ready]);
 
   const startParam = getStartParam();
   if (startParam?.startsWith('confadmin_')) {

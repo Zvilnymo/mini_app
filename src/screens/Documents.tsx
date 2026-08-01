@@ -91,6 +91,7 @@ function TextDocCard({ item, onSaved }: { item: DocumentChecklistItem; onSaved: 
     setSaving(true);
     setError(null);
     try {
+      api.trackUploadAttempt(item.type, 'text');
       await api.uploadTextDocument(item.type, text);
       setPassword('');
       setEmail('');
@@ -198,6 +199,7 @@ function DocCard({ item, onUploaded }: { item: DocumentChecklistItem; onUploaded
           failure = `Файл "${files[i].name}" завеликий навіть після стиснення. Спробуйте зменшити його або зробити менш детальний скріншот/фото.`;
           continue;
         }
+        api.trackUploadAttempt(item.type, 'file');
         const result = await api.uploadDocument(item.type, compressed);
         if (result.validation_status === 'rejected') anyRejected = true;
       } catch (err) {

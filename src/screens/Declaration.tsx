@@ -15,6 +15,10 @@ export function Declaration({ onBack }: { onBack: () => void }) {
   const [missing, setMissing] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    api.trackScreenView('declaration');
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     api
       .getDeclaration()

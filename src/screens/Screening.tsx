@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api, type ScreeningAnswers } from '../api/client';
 
 const QUESTIONS: { key: keyof ScreeningAnswers; text: string }[] = [
@@ -24,6 +24,10 @@ export function Screening({ onDone, title }: { onDone: () => void; title?: strin
   const [answers, setAnswers] = useState<Partial<Record<keyof ScreeningAnswers, boolean>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.trackScreenView('screening');
+  }, []);
 
   const allAnswered = QUESTIONS.every((q) => answers[q.key] !== undefined);
 

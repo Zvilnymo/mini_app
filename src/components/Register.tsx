@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api/client';
 import logo from '../assets/logo.png';
 import './Register.css';
@@ -7,6 +7,10 @@ export function Register({ onRegistered }: { onRegistered: () => void }) {
   const [phone, setPhone] = useState('');
   const [registering, setRegistering] = useState(false);
   const [registerError, setRegisterError] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.trackScreenView('register');
+  }, []);
 
   const submit = async () => {
     if (!phone.trim()) return;
