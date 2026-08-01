@@ -58,6 +58,13 @@ function attempt(step: () => void) {
 }
 
 let initPromise: ReturnType<typeof runInit> | null = null;
+// tgWebAppStartParam (top-level launch param, always set by Telegram when
+// the app is opened via a startapp= link) rather than initDataStartParam
+// (read from the *signed* initData payload's nested start_param field) —
+// confirmed live that a Menu-Button-attached Mini App can populate the
+// former but leave the latter empty, silently dropping admin deep links
+// (?startapp=confadmin_...) into the ordinary client view with no error.
+let capturedStartParam: string | undefined;
 
 export function initTelegram() {
   return (initPromise ??= runInit());
@@ -108,7 +115,9 @@ async function runInit() {
     }
   });
 
-  return retrieveLaunchParams();
+  const launchParams = retrieveLaunchParams();
+  capturedStartParam = launchParams.tgWebAppStartParam;
+  return launchParams;
 }
 
 /** Raw initData query string, sent as-is to mini_app_api for HMAC validation. */
@@ -126,5 +135,5 @@ export function getInitDataRaw(): string {
  * documents_bot's `/start admin_<code>` — see AdminRegister.tsx.
  */
 export function getStartParam(): string | undefined {
-  return initDataStartParam();
+  return capturedStartParam ?? initDataStartParam();
 }
